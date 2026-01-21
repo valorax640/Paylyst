@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { COLORS } from '../constants/colors';
 
 const GradientHeader = ({ title, subtitle, icon = 'cash-multiple' }) => {
+  const insets = useSafeAreaInsets();
+  
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, {paddingTop: insets.top + 20}]}>
       <Text style={styles.title}>{title}</Text>
       {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
     </View>
