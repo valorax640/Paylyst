@@ -1,10 +1,60 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AppContext = createContext();
+
+const STORAGE_KEYS = {
+  PEOPLE: '@paylyst_people',
+  EXPENSES: '@paylyst_expenses',
+};
 
 export const AppProvider = ({ children }) => {
   const [people, setPeople] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load data from AsyncStorage on app start
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Save data whenever people or expenses change
+  useEffect(() => {
+    const saveData = async () => {
+      try {
+        await Promise.all([
+          AsyncStorage.setItem(STORAGE_KEYS.PEOPLE, JSON.stringify(people)),
+          AsyncStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(expenses)),
+        ]);
+      } catch (error) {
+        console.error('Error saving data to AsyncStorage:', error);
+      }
+    };
+
+    if (!isLoading) {
+      saveData();
+    }
+  }, [people, expenses, isLoading]);
+
+  const loadData = async () => {
+    try {
+      const [storedPeople, storedExpenses] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.PEOPLE),
+        AsyncStorage.getItem(STORAGE_KEYS.EXPENSES),
+      ]);
+
+      if (storedPeople) {
+        setPeople(JSON.parse(storedPeople));
+      }
+      if (storedExpenses) {
+        setExpenses(JSON.parse(storedExpenses));
+      }
+    } catch (error) {
+      console.error('Error loading data from AsyncStorage:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const addPerson = (name) => {
     const newPerson = {
@@ -99,9 +149,17 @@ export const AppProvider = ({ children }) => {
     ));
   };
 
-  const clearAll = () => {
+  const clearAll = async () => {
     setPeople([]);
     setExpenses([]);
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem(STORAGE_KEYS.PEOPLE),
+        AsyncStorage.removeItem(STORAGE_KEYS.EXPENSES),
+      ]);
+    } catch (error) {
+      console.error('Error clearing data from AsyncStorage:', error);
+    }
   };
 
   return (
@@ -109,6 +167,7 @@ export const AppProvider = ({ children }) => {
       value={{
         people,
         expenses,
+        isLoading,
         addPerson,
         removePerson,
         updatePerson,

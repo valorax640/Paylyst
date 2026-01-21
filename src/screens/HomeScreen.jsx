@@ -19,7 +19,21 @@ import { getCompactDisplay } from '../utils/formatNumber';
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
-  const { people, expenses } = useApp();
+  const { people, expenses, isLoading } = useApp();
+  
+  // Show loading screen while data is being loaded
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+        <View style={styles.loadingContainer}>
+          <Icon name="wallet" size={64} color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading Paylyst...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const totalExpenses = getTotalExpenses(expenses);
   const totalExpenseDisplay = getCompactDisplay(totalExpenses);
 
@@ -187,6 +201,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginTop: 16,
   },
   scrollView: {
     flex: 1,
