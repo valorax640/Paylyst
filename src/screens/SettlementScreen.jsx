@@ -7,7 +7,9 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GradientHeader from '../components/GradientHeader';
 import { useApp } from '../context/AppContext';
@@ -19,6 +21,34 @@ const SettlementScreen = ({ navigation }) => {
   const balances = calculateBalances(people, expenses);
   const settlements = calculateSettlements(balances, people);
   const totalExpenses = getTotalExpenses(expenses);
+
+  // Redirect if no people or expenses exist - only when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      if (people.length === 0) {
+        Alert.alert(
+          'No People Added',
+          'Please add people first to see settlements.',
+          [{ text: 'OK', onPress: () => navigation.navigate('People') }]
+        );
+        return;
+      } 
+      
+      if (expenses.length === 0) {
+        Alert.alert(
+          'No Bills Added',
+          'Please add some bills first to see settlements.',
+          [{ text: 'OK', onPress: () => navigation.navigate('AddExpense') }]
+        );
+        return;
+      }
+    }, [people.length, expenses.length, navigation])
+  );
+
+  // Don't render the screen if no people or expenses
+  if (people.length === 0 || expenses.length === 0) {
+    return null;
+  }
 
   const positiveBalances = people.filter(p => balances[p.id] > 0.01);
   const negativeBalances = people.filter(p => balances[p.id] < -0.01);

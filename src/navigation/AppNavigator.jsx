@@ -32,7 +32,7 @@ const getTabBarIcon = (route, focused, color, size) => {
 };
 
 const TabNavigator = () => {
-  const { people, expenses } = useApp();
+  const { people } = useApp();
   
   return (
     <Tab.Navigator
@@ -44,9 +44,9 @@ const TabNavigator = () => {
           backgroundColor: COLORS.white,
           borderTopColor: COLORS.border,
           borderTopWidth: 1,
-          paddingBottom: 8,
+          paddingBottom: 18,
           paddingTop: 8,
-          height: 65,
+          height: 80,
           elevation: 8,
           shadowColor: COLORS.black,
           shadowOffset: { width: 0, height: -2 },
@@ -82,14 +82,6 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Add Bill',
         }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            if (people.length === 0) {
-              e.preventDefault();
-              navigation.navigate('People');
-            }
-          },
-        })}
       />
       <Tab.Screen 
         name="Settlement" 
@@ -97,14 +89,6 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Settle',
         }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            if (expenses.length === 0) {
-              e.preventDefault();
-              navigation.navigate('HomeTab');
-            }
-          },
-        })}
       />
     </Tab.Navigator>
   );
@@ -140,8 +124,7 @@ const AppNavigator = () => {
           name="ExpenseDetails" 
           component={ExpenseDetailsScreen}
           options={{
-            title: 'Expense Details',
-            headerShown: true,
+            headerShown: false,
           }}
         />
       </Stack.Navigator>

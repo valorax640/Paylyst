@@ -33,13 +33,13 @@ const PeopleScreen = ({ navigation }) => {
   const handleRemovePerson = (person) => {
     Alert.alert(
       'Remove Person',
-      `Are you sure you want to remove ${person.name}?  This will also remove their expenses.`,
+      `Are you sure you want to remove ${person.name}? This will also remove their expenses.`,
       [
-        { text: 'Cancel', style:  'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Remove',
           style: 'destructive',
-          onPress: () => removePerson(person. id),
+          onPress: () => removePerson(person.id),
         },
       ]
     );
@@ -47,7 +47,7 @@ const PeopleScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS. primary} />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       
       <GradientHeader 
         title="People" 
@@ -63,7 +63,7 @@ const PeopleScreen = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="Enter name"
-              placeholderTextColor={COLORS. textSecondary}
+              placeholderTextColor={COLORS.textSecondary}
               value={name}
               onChangeText={setName}
               onSubmitEditing={handleAddPerson}
@@ -79,7 +79,7 @@ const PeopleScreen = ({ navigation }) => {
             title="Add Person"
             onPress={handleAddPerson}
             icon="plus"
-            disabled={! name.trim()}
+            disabled={!name.trim()}
           />
         </View>
 
@@ -129,11 +129,11 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     elevation: 3,
     shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height:  2 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  label:  {
+  label: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.text,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    alignItems:  'center',
+    alignItems: 'center',
     backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingHorizontal: 16,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   inputIcon: {
-    marginRight:  8,
+    marginRight: 8,
   },
   input: {
     flex: 1,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color:  COLORS.text,
+    color: COLORS.text,
     marginBottom: 15,
   },
   emptyState: {
@@ -176,9 +176,9 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderStyle: 'dashed',
   },
-  emptyText:  {
+  emptyText: {
     fontSize: 18,
-    color: COLORS. textSecondary,
+    color: COLORS.textSecondary,
     marginTop: 16,
     fontWeight: '600',
   },

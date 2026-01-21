@@ -12,14 +12,60 @@ export const AppProvider = ({ children }) => {
       name: name.trim(),
       createdAt: new Date().toISOString(),
     };
-    setPeople([...people, newPerson]);
+    
+    const updatedPeople = [...people, newPerson];
+    setPeople(updatedPeople);
+    
+    // Redistribute existing expenses to include the new person
+    const updatedExpenses = expenses.map(expense => {
+      const totalAmount = expense.amount;
+      const newSplitAmount = totalAmount / updatedPeople.length;
+      const newSplits = {};
+      
+      updatedPeople.forEach(person => {
+        newSplits[person.id] = newSplitAmount;
+      });
+      
+      return {
+        ...expense,
+        splits: newSplits
+      };
+    });
+    
+    setExpenses(updatedExpenses);
     return newPerson;
   };
 
   const removePerson = (id) => {
-    setPeople(people.filter(person => person.id !== id));
-    // Also remove expenses related to this person
-    setExpenses(expenses.filter(expense => expense.payer.id !== id));
+    const remainingPeople = people.filter(person => person.id !== id);
+    setPeople(remainingPeople);
+    
+    if (remainingPeople.length === 0) {
+      // If no people left, clear all expenses
+      setExpenses([]);
+      return;
+    }
+    
+    // Remove expenses where the removed person was the payer
+    const validExpenses = expenses.filter(expense => expense.payer.id !== id);
+    
+    // Redistribute remaining expenses among remaining people
+    const updatedExpenses = validExpenses.map(expense => {
+      const totalAmount = expense.amount;
+      const newSplitAmount = totalAmount / remainingPeople.length;
+      const newSplits = {};
+      
+      remainingPeople.forEach(person => {
+        newSplits[person.id] = newSplitAmount;
+      });
+      
+      return {
+        ...expense,
+        splits: newSplits
+      };
+    });
+    
+    setExpenses(updatedExpenses);
   };
 
   const updatePerson = (id, name) => {
@@ -29,6 +75,11 @@ export const AppProvider = ({ children }) => {
   };
 
   const addExpense = (expenseData) => {
+    // Prevent adding expense if no people exist
+    if (people.length === 0) {
+      throw new Error('Cannot add expense without people');
+    }
+
     const newExpense = {
       ...expenseData,
       id: Date.now().toString(),

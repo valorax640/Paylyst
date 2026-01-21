@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GradientHeader from '../components/GradientHeader';
@@ -14,6 +15,8 @@ import { useApp } from '../context/AppContext';
 import { COLORS } from '../constants/colors';
 import { getTotalExpenses } from '../utils/calculations';
 import { getCompactDisplay } from '../utils/formatNumber';
+
+const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const { people, expenses } = useApp();
@@ -31,20 +34,20 @@ const HomeScreen = ({ navigation }) => {
       subtitle: totalExpenseDisplay.sub,
       icon: 'wallet',
       color: COLORS.primary,
-      trend: '+12%',
-      trendColor: COLORS.success,
     },
     {
       label: 'Per Person',
       value: getCompactDisplay(avgExpensePerPerson).main,
-      subtitle: `${people.length} people`,
+      subtitle: getCompactDisplay(avgExpensePerPerson).sub,
+      secondaryText: `${people.length} ${people.length === 1 ? 'person' : 'people'}`,
       icon: 'account-group',
       color: COLORS.secondary,
     },
     {
       label: 'Per Bill',
       value: getCompactDisplay(avgExpensePerBill).main,
-      subtitle: `${expenses.length} bills`,
+      subtitle: getCompactDisplay(avgExpensePerBill).sub,
+      secondaryText: `${expenses.length} ${expenses.length === 1 ? 'bill' : 'bills'}`,
       icon: 'receipt',
       color: COLORS.accent,
     },
@@ -53,317 +56,429 @@ const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-      <GradientHeader
-        title="Paylyst"
-        subtitle="Split bills, track expenses"
-        icon="wallet"
-      />
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Enhanced Stats Section */}
-        <View style={styles.heroStatsContainer}>
-          <View style={styles.mainStatCard}>
-            <Icon name={stats[0].icon} size={32} color={stats[0].color} />
-            <Text style={styles.mainStatValue}>{stats[0].value}</Text>
-            <Text style={styles.mainStatLabel}>{stats[0].label}</Text>
+      
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Hero Header with Floating Stats */}
+        <View style={styles.heroSection}>
+          <GradientHeader
+            title="Paylyst"
+            subtitle="Split bills, track expenses"
+            icon="wallet"
+          />
+          
+          {/* Floating Main Stat Card */}
+          <View style={styles.floatingMainCard}>
+            <View style={styles.mainStatHeader}>
+              <View style={styles.mainStatIconContainer}>
+                <Icon name={stats[0].icon} size={28} color={COLORS.white} />
+              </View>
+              <View style={styles.mainStatTextContainer}>
+                <Text style={styles.mainStatValue}>{stats[0].value}</Text>
+                <Text style={styles.mainStatLabel}>{stats[0].label}</Text>
+              </View>
+            </View>
             {stats[0].subtitle && (
               <Text style={styles.mainStatSubtitle}>{stats[0].subtitle}</Text>
             )}
-            {stats[0].trend && (
-              <View style={styles.trendContainer}>
-                <Icon name="trending-up" size={16} color={stats[0].trendColor} />
-                <Text style={[styles.trendText, { color: stats[0].trendColor }]}>
-                  {stats[0].trend} this month
-                </Text>
-              </View>
-            )}
-          </View>
-          
-          <View style={styles.subStatsContainer}>
-            {stats.slice(1).map((stat, index) => (
-              <View key={index} style={styles.subStatCard}>
-                <View style={[styles.subStatIcon, { backgroundColor: stat.color + '20' }]}>
-                  <Icon name={stat.icon} size={20} color={stat.color} />
-                </View>
-                <Text style={styles.subStatValue}>{stat.value}</Text>
-                <Text style={styles.subStatLabel}>{stat.label}</Text>
-                {stat.subtitle && (
-                  <Text style={styles.subStatSubtitle}>{stat.subtitle}</Text>
-                )}
-              </View>
-            ))}
           </View>
         </View>
 
-        {/* Recent Activity */}
-        {expenses.length > 0 && (
-          <View style={styles. section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Expenses</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAll}>View All</Text>
-              </TouchableOpacity>
-            </View>
-            {expenses.slice(-3).reverse().map((expense) => (
-              <TouchableOpacity
-                key={expense.id}
-                style={styles.recentItem}
-                onPress={() => navigation.navigate('ExpenseDetails', { expense })}
+        {/* Quick Stats Grid */}
+        <View style={styles.contentContainer}>
+          <View style={styles.quickStatsGrid}>
+            {stats.slice(1).map((stat, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.quickStatCard}
+                activeOpacity={0.7}
               >
-                <View style={styles.recentIcon}>
-                  <Icon name="receipt" size={20} color={COLORS.primary} />
+                <View>
+                  <View style={styles.quickStatHeader}>
+                    <View style={[styles.quickStatIcon, { backgroundColor: stat.color }]}>
+                      <Icon name={stat.icon} size={16} color={COLORS.white} />
+                    </View>
+                    <View style={styles.quickStatDot} />
+                  </View>
+                  <Text style={styles.quickStatLabel}>{stat.label}</Text>
+                  <Text style={styles.quickStatValue}>{stat.value}</Text>
+                  {stat.subtitle && (
+                    <Text style={styles.quickStatSubtitle}>{stat.subtitle}</Text>
+                  )}
                 </View>
-                <View style={styles.recentText}>
-                  <Text style={styles.recentTitle}>{expense.name}</Text>
-                  <Text style={styles.recentSubtitle}>
-                    Paid by {expense.payer.name}
+                {stat.secondaryText && (
+                  <Text style={[styles.quickStatSecondary, { backgroundColor: stat.color }]}>
+                    {stat.secondaryText}
                   </Text>
-                </View>
-                <Text style={styles.recentAmount}>₹{expense.amount.toFixed(2)}</Text>
+                )}
               </TouchableOpacity>
             ))}
           </View>
-        )}
 
-        {/* Getting Started */}
-        {people.length === 0 && (
-          <View style={styles. gettingStarted}>
-            <Icon name="information" size={60} color={COLORS.primary} />
-            <Text style={styles.gettingStartedTitle}>Get Started</Text>
-            <Text style={styles.gettingStartedText}>
-              Add people to start splitting bills and tracking expenses
-            </Text>
-            <TouchableOpacity
-              style={styles.startButton}
-              onPress={() => navigation.navigate('People')}
-            >
-              <Text style={styles.startButtonText}>Add People</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {/* Recent Activity with Modern Design */}
+          {expenses.length > 0 && (
+            <View style={styles.activitySection}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleContainer}>
+                  <Icon name="clock-outline" size={20} color={COLORS.primary} />
+                  <Text style={styles.sectionTitle}>Recent Activity</Text>
+                </View>
+                {/* <TouchableOpacity style={styles.viewAllButton}>
+                  <Text style={styles.viewAllText}>View All</Text>
+                  <Icon name="chevron-right" size={16} color={COLORS.primary} />
+                </TouchableOpacity> */}
+              </View>
+              
+              <View style={styles.activityList}>
+                {expenses.slice(-3).reverse().map((expense, index) => (
+                  <TouchableOpacity
+                    key={expense.id}
+                    style={[styles.activityItem, index === 0 && styles.firstActivityItem]}
+                    onPress={() => navigation.navigate('ExpenseDetails', { expense })}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.activityIconContainer}>
+                      <View style={styles.activityIcon}>
+                        <Icon name="receipt" size={16} color={COLORS.primary} />
+                      </View>
+                    </View>
+                    <View style={styles.activityContent}>
+                      <Text style={styles.activityTitle}>{expense.name}</Text>
+                      <Text style={styles.activitySubtitle}>
+                        Paid by {expense.payer.name}
+                      </Text>
+                    </View>
+                    <View style={styles.activityAmount}>
+                      <Text style={styles.activityAmountText}>₹{expense.amount.toFixed(2)}</Text>
+                      <Icon name="chevron-right" size={16} color={COLORS.textLight} />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Getting Started with Better Design */}
+          {people.length === 0 && (
+            <View style={styles.onboardingCard}>
+              <View style={styles.onboardingIconContainer}>
+                <Icon name="account-group" size={48} color={COLORS.primary} />
+              </View>
+              <Text style={styles.onboardingTitle}>Welcome to Paylyst!</Text>
+              <Text style={styles.onboardingText}>
+                Start by adding people to your group, then split bills effortlessly
+              </Text>
+              <TouchableOpacity
+                style={styles.onboardingButton}
+                onPress={() => navigation.navigate('People')}
+                activeOpacity={0.8}
+              >
+                <Icon name="plus" size={20} color={COLORS.white} />
+                <Text style={styles.onboardingButtonText}>Add Your First Person</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet. create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    padding: 20,
   },
-  heroStatsContainer: {
-    marginBottom: 25,
+  heroSection: {
+    position: 'relative',
+    paddingBottom: 40,
   },
-  mainStatCard: {
-    backgroundColor: COLORS.card,
+  floatingMainCard: {
+    backgroundColor: COLORS.white,
+    marginHorizontal: 20,
+    marginTop: -25,
+    borderRadius: 24,
     padding: 24,
-    borderRadius: 20,
+    elevation: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+  },
+  mainStatHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 12,
+  },
+  mainStatIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
     elevation: 4,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  mainStatTextContainer: {
+    flex: 1,
   },
   mainStatValue: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     color: COLORS.primary,
-    marginTop: 12,
-    marginBottom: 4,
+    lineHeight: 36,
   },
   mainStatLabel: {
     fontSize: 16,
-    color: COLORS.text,
+    color: COLORS.textSecondary,
     fontWeight: '600',
-    marginBottom: 4,
+    marginTop: 2,
   },
   mainStatSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 8,
+    color: COLORS.textLight,
+    marginBottom: 16,
   },
-  trendContainer: {
+  trendBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.success + '15',
+    backgroundColor: COLORS.success + '10',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: COLORS.success + '20',
   },
   trendText: {
     fontSize: 12,
     fontWeight: '600',
+    color: COLORS.success,
     marginLeft: 4,
   },
-  subStatsContainer: {
+  contentContainer: {
+    padding: 20,
+    paddingTop: 0,
+  },
+  quickStatsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 32,
   },
-  subStatCard: {
+  quickStatCard: {
     flex: 1,
-    backgroundColor: COLORS.card,
+    backgroundColor: COLORS.white,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 12,
+    marginHorizontal: 6,
+    minHeight: 120,
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  quickStatHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 4,
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  quickStatIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 2,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 2,
   },
-  subStatIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
+  quickStatDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.success,
   },
-  subStatValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  quickStatValue: {
+    fontSize: 24,
+    fontWeight: '800',
     color: COLORS.text,
-    marginBottom: 4,
-  },
-  subStatLabel: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
     marginBottom: 2,
+    lineHeight: 28,
   },
-  subStatSubtitle: {
-    fontSize: 10,
+  quickStatLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 1,
+  },
+  quickStatSubtitle: {
+    fontSize: 9,
     color: COLORS.textLight,
-    textAlign: 'center',
+    fontWeight: '500',
+    marginBottom: 6,
   },
-  section: {
-    marginBottom: 25,
+  quickStatSecondary: {
+    fontSize: 10,
+    color: COLORS.white,
+    fontWeight: '700',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    overflow: 'hidden',
+  },
+  activitySection: {
+    marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: COLORS.text,
+    marginLeft: 8,
   },
-  viewAll: {
-    fontSize: 14,
-    color: COLORS. primary,
-    fontWeight: '600',
-  },
-  menuItem: {
-    flexDirection:  'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.card,
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
-    elevation: 2,
-    shadowColor: COLORS. black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity:  0.1,
-    shadowRadius: 3,
-  },
-  menuItemDisabled: {
-    opacity: 0.5,
-  },
-  menuIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight:  16,
-  },
-  menuText: {
-    flex: 1,
-  },
-  menuTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS. text,
-    marginBottom: 4,
-  },
-  menuSubtitle: {
-    fontSize:  14,
-    color:  COLORS.textSecondary,
-  },
-  recentItem: {
+  viewAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    backgroundColor: COLORS.primary + '10',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  recentIcon: {
+  viewAllText: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '600',
+    marginRight: 4,
+  },
+  activityList: {
+    backgroundColor: COLORS.white,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  firstActivityItem: {
+    backgroundColor: COLORS.primary + '05',
+  },
+  activityIconContainer: {
+    marginRight: 12,
+  },
+  activityIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.primary + '20',
-    justifyContent:  'center',
+    backgroundColor: COLORS.primary + '15',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
   },
-  recentText: {
+  activityContent: {
     flex: 1,
   },
-  recentTitle:  {
+  activityTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.text,
+    marginBottom: 2,
   },
-  recentSubtitle: {
+  activitySubtitle: {
     fontSize: 13,
-    color: COLORS. textSecondary,
-    marginTop: 2,
+    color: COLORS.textSecondary,
   },
-  recentAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color:  COLORS.primary,
-  },
-  gettingStarted: {
+  activityAmount: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 40,
-    backgroundColor: COLORS. card,
-    borderRadius: 20,
-    marginTop: 20,
   },
-  gettingStartedTitle:  {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color:  COLORS.text,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  gettingStartedText: {
+  activityAmountText: {
     fontSize: 16,
-    color: COLORS. textSecondary,
+    fontWeight: '700',
+    color: COLORS.primary,
+    marginRight: 8,
+  },
+  onboardingCard: {
+    backgroundColor: COLORS.white,
+    padding: 32,
+    borderRadius: 24,
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '10',
+  },
+  onboardingIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.primary + '10',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  onboardingTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 12,
     textAlign: 'center',
-    marginBottom: 24,
   },
-  startButton: {
+  onboardingText: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 28,
+  },
+  onboardingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 32,
-    paddingVertical:  12,
-    borderRadius: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 25,
+    elevation: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
-  startButtonText: {
+  onboardingButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    marginLeft: 8,
   },
 });
 

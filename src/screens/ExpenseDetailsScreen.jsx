@@ -42,7 +42,7 @@ const ExpenseDetailsScreen = ({ route, navigation }) => {
 
             <GradientHeader
                 title={expense.name}
-                subtitle={`$${expense.amount.toFixed(2)}`}
+                subtitle={`₹${expense.amount.toFixed(2)}`}
             />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -50,10 +50,10 @@ const ExpenseDetailsScreen = ({ route, navigation }) => {
                 <View style={styles.card}>
                     <View style={styles.infoRow}>
                         <View style={styles.infoLabel}>
-                            <Icon name="currency-usd" size={24} color={COLORS.primary} />
+                            <Icon name="currency-inr" size={24} color={COLORS.primary} />
                             <Text style={styles.infoLabelText}>Total Amount</Text>
                         </View>
-                        <Text style={styles.infoValue}>${expense.amount.toFixed(2)}</Text>
+                        <Text style={styles.infoValue}>₹{expense.amount.toFixed(2)}</Text>
                     </View>
 
                     <View style={styles.infoRow}>
@@ -113,7 +113,7 @@ const ExpenseDetailsScreen = ({ route, navigation }) => {
                                     </View>
                                 </View>
                                 <View style={styles.amountContainer}>
-                                    <Text style={styles.splitAmount}>${amount.toFixed(2)}</Text>
+                                    <Text style={styles.splitAmount}>₹{amount.toFixed(2)}</Text>
                                     <Text style={styles.splitPercentage}>
                                         {((amount / expense.amount) * 100).toFixed(0)}%
                                     </Text>
@@ -144,8 +144,8 @@ const ExpenseDetailsScreen = ({ route, navigation }) => {
                                     balance > 0 ? styles.positiveBalance : styles.negativeBalance,
                                 ]}>
                                     {balance > 0
-                                        ? `Gets back $${balance.toFixed(2)}`
-                                        : `Owes $${Math.abs(balance).toFixed(2)}`
+                                        ? `Gets back ₹${balance.toFixed(2)}`
+                                        : `Owes ₹${Math.abs(balance).toFixed(2)}`
                                     }
                                 </Text>
                             </View>

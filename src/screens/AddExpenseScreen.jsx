@@ -10,6 +10,7 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GradientHeader from '../components/GradientHeader';
 import CustomButton from '../components/CustomButton';
@@ -24,6 +25,24 @@ const AddExpenseScreen = ({ navigation }) => {
   const [selectedPayer, setSelectedPayer] = useState(null);
   const [splitMode, setSplitMode] = useState('equal');
   const [customSplits, setCustomSplits] = useState({});
+
+  // Redirect if no people exist - only when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      if (people.length === 0) {
+        Alert.alert(
+          'No People Added',
+          'Please add people first before creating bills.',
+          [{ text: 'OK', onPress: () => navigation.navigate('People') }]
+        );
+      }
+    }, [people.length, navigation])
+  );
+
+  // Don't render the screen if no people
+  if (people.length === 0) {
+    return null;
+  }
 
   const handleAddExpense = () => {
     if (!expenseName.trim()) {
@@ -217,7 +236,7 @@ const AddExpenseScreen = ({ navigation }) => {
             <View style={styles.preview}>
               <Icon name="information" size={20} color={COLORS.info} />
               <Text style={styles.previewText}>
-                Each person pays ${(parseFloat(expenseAmount) / people.length).toFixed(2)}
+                Each person pays ₹{(parseFloat(expenseAmount) / people.length).toFixed(2)}
               </Text>
             </View>
           )}
