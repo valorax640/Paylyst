@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GradientHeader from '../components/GradientHeader';
@@ -15,8 +14,6 @@ import { useApp } from '../context/AppContext';
 import { COLORS } from '../constants/colors';
 import { getTotalExpenses } from '../utils/calculations';
 import { getCompactDisplay } from '../utils/formatNumber';
-
-const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const { people, expenses, isLoading } = useApp();
